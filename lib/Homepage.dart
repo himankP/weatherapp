@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  final String cityName;
+  const Homepage({super.key, required this.cityName});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -9,6 +14,27 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final bool _isLoading = true;
+  Future getdata() async {
+    try {
+      final apiKey = dotenv.env['API_KEY'];
+      print('API Key: $apiKey');
+
+      final url = Uri.parse("http://api.weatherapi.com/v1/current.json?key=$apiKey&q=${widget.cityName}&aqi=no");
+      final res = await http.get(url);
+
+      final data = jsonDecode(res.body);
+      print(data);
+    } catch (e) {}
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getdata();
+    print("build method called");
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
