@@ -12,9 +12,9 @@ class Searchpage extends StatelessWidget {
         body: Center(
           child: TextField(
             onSubmitted:
-                (value) => {
+                (String value) => {
                   print('User entered: $value'),
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Homepage())),
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(cityName: value))),
                   // You can add your search logic here
                 },
             controller: controller,

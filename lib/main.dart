@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:weatherapp/Searchpage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main(List<String> args) {
+Future<void> main(List<String> args) async {
   print('Hello, World!');
+  await dotenv.load(fileName: ".env");
   runApp(const Myapp());
 }
 
