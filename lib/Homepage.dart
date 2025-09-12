@@ -13,7 +13,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  final bool _isLoading = true;
+  bool _isLoading = true;
+  WeatherData? _weatherData;
   Future getdata() async {
     try {
       final apiKey = dotenv.env['API_KEY'];
@@ -23,6 +24,10 @@ class _HomepageState extends State<Homepage> {
       final res = await http.get(url);
 
       final data = jsonDecode(res.body);
+      setState(() {
+        _weatherData = WeatherData.fromJson(data);
+        _isLoading = false;
+      });
       print(data);
     } catch (e) {}
   }
@@ -46,13 +51,14 @@ class _HomepageState extends State<Homepage> {
                   : Column(
                     children: [
                       SizedBox(height: 100),
-                      Text("Dlihe", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      Text(
+                        _weatherData!.cityName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                       Image.network("https://cdn.weatherapi.com/weather/128x128/day/113.png"),
                       Text("23°C", style: TextStyle(fontSize: 28)),
                       Text("Sunny", style: TextStyle(fontSize: 24)),
-                      Text("high:31.low20", style: TextStyle(fontSize: 20)),
-                      Text("wind:12km/h", style: TextStyle(fontSize: 20)),
-                      Text("humidity:50", style: TextStyle(fontSize: 20)),
+                      Text("high.low :${_weatherData!.high}, style: TextStyle(fontSize: 20)),
+                      Text("wind:$ {"_weatherData!.wind}   , style: TextStyle(fontSize: 20)),
+                      Text("humidity:${_weatherData!.humidity}", style: TextStyle(fontSize: 20)),
                     ],
                   ),
         ),
@@ -60,4 +66,44 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+}
+
+class WeatherData {
+  final String cityName;
+  final String condition;
+  final String iconUrl;
+  final double temperature;
+  final double high;
+  final double low;
+  final double wind;
+  final int humidity;
+
+  WeatherData({
+    required this.cityName,
+    required this.condition,
+    required this.iconUrl,
+    required this.temperature,
+    required this.high,
+    required this.low,
+    required this.wind,
+    required this.humidity,
+  });
+
+  factory WeatherData.fromJson(Map<String, dynamic> json) {
+
+
+    return WeatherData(
+      cityName: json['location']['name'],
+      condition: json['current']['condition']['text'],
+      iconUrl: "https:${json['current']['condition']['icon']}",
+      temperature: (json['current']['temp_c'] as num).toDouble(),
+      high: (json['forecast']?['forecastday']?[0]?['day']?['maxtemp_c'] ?? json['current']['temp_c']).toDouble(),
+      low: (json['forecast']?['forecastday']?[0]?['day']?['mintemp_c'] ?? json['current']['temp_c']).toDouble(),
+      wind: (json['current']['wind_kph'] as num).toDouble(),
+      humidity: json['current']['humidity'],
+    );
+  }
+
+
+
 }
