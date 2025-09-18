@@ -52,13 +52,27 @@ class _HomepageState extends State<Homepage> {
                     children: [
                       SizedBox(height: 100),
                       Text(
-                        _weatherData!.cityName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                      Image.network("https://cdn.weatherapi.com/weather/128x128/day/113.png"),
-                      Text("23°C", style: TextStyle(fontSize: 28)),
-                      Text("Sunny", style: TextStyle(fontSize: 24)),
-                      Text("high.low :${_weatherData!.high}, style: TextStyle(fontSize: 20)),
-                      Text("wind:$ {"_weatherData!.wind}   , style: TextStyle(fontSize: 20)),
-                      Text("humidity:${_weatherData!.humidity}", style: TextStyle(fontSize: 20)),
+                        _weatherData!.cityName,
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      Image.network(_weatherData!.iconUrl),
+                      Text(",${_weatherData!.temperature} .C", style: TextStyle(fontSize: 28, color: Colors.white)),
+                      Text(_weatherData!.condition, style: TextStyle(fontSize: 24, color: Colors.white)),
+
+                      Text(
+                        "high:${_weatherData!.high} low: ${_weatherData!.low}",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      Text("wind:${_weatherData!.wind} km/hr", style: TextStyle(fontSize: 20, color: Colors.white)),
+                      Text("humidity:${_weatherData!.humidity} %", style: TextStyle(fontSize: 20, color: Colors.white)),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(onPressed: () {}, child: Text("hourly", style: TextStyle(color: Colors.white))),
+                          TextButton(onPressed: () {}, child: Text("weekly", style: TextStyle(color: Colors.white))),
+                        ],
+                      ),
                     ],
                   ),
         ),
@@ -90,8 +104,6 @@ class WeatherData {
   });
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
-
-
     return WeatherData(
       cityName: json['location']['name'],
       condition: json['current']['condition']['text'],
@@ -103,7 +115,23 @@ class WeatherData {
       humidity: json['current']['humidity'],
     );
   }
+}
 
+class forecast extends StatefulWidget {
+  const forecast({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Text("forecast");
+  }
 
+  @override
+  State<forecast> createState() => _forecastState();
+}
+
+class _forecastState extends State<forecast> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Center(child: Text("forecast")));
+  }
 }
