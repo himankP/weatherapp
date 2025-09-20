@@ -70,7 +70,15 @@ class _HomepageState extends State<Homepage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           TextButton(onPressed: () {}, child: Text("hourly", style: TextStyle(color: Colors.white))),
-                          TextButton(onPressed: () {}, child: Text("weekly", style: TextStyle(color: Colors.white))),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => forecast(cityName: widget.cityName)),
+                              );
+                            },
+                            child: Text("weekly", style: TextStyle(color: Colors.white)),
+                          ),
                         ],
                       ),
                     ],
@@ -118,7 +126,8 @@ class WeatherData {
 }
 
 class forecast extends StatefulWidget {
-  const forecast({super.key});
+  final String cityName;
+  const forecast({super.key, required this.cityName});
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +138,34 @@ class forecast extends StatefulWidget {
   State<forecast> createState() => _forecastState();
 }
 
+// http://api.weatherapi.com/v1/forecast.json?key=YOUR_API_KEY&q=Delhi&days=5
+
 class _forecastState extends State<forecast> {
+  bool _isLoading = true;
+  Future getdata() async {
+    try {
+      final apiKey = dotenv.env['API_KEY'];
+      print('API Key: $apiKey');
+      final url = Uri.parse("http://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=${widget.cityName}&days=5");
+      final res = await http.get(url);
+      final data = jsonDecode(res.body);
+      print(data);
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {}
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getdata();
+    print("initstate");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text("forecast")));
+    return Scaffold(body: Center(child: _isLoading ? CircularProgressIndicator() : Text("forecast")));
   }
 }
