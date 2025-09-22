@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:weatherapp/models/forecast.dart';
 
 class Homepage extends StatefulWidget {
   final String cityName;
@@ -142,6 +143,8 @@ class forecast extends StatefulWidget {
 
 class _forecastState extends State<forecast> {
   bool _isLoading = true;
+  List<Forecastdata> _forecastList = [];
+
   Future getdata() async {
     try {
       final apiKey = dotenv.env['API_KEY'];
@@ -149,11 +152,24 @@ class _forecastState extends State<forecast> {
       final url = Uri.parse("http://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=${widget.cityName}&days=5");
       final res = await http.get(url);
       final data = jsonDecode(res.body);
-      print(data);
+
+      List<Forecastdata> tempList = [];
+      for (var item in data['forecast']['forecastday']) {
+        tempList.add(Forecastdata.fromJson(item));
+      }
+
+      print(_forecastList);
       setState(() {
+        _forecastList = tempList;
         _isLoading = false;
       });
-    } catch (e) {}
+
+      print(data);
+    } catch (e) {
+      // setState(() {
+      //   _isLoading = false;
+      // });
+    }
   }
 
   @override
@@ -166,6 +182,41 @@ class _forecastState extends State<forecast> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: _isLoading ? CircularProgressIndicator() : Text("forecast")));
+    return Scaffold(
+      body: Center(
+        child:
+            _isLoading
+                ? CircularProgressIndicator()
+                : Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Daily forecast",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          backgroundColor: Colors.cyanAccent,
+                        ),
+                      ),
+
+                      Card(
+                        child: Column(
+                          children: [
+                            for (var forecast in _forecastList)
+                              ListTile(
+                                leading: Image.network(forecast.iconUrl),
+                                title: Text(forecast.day),
+                                subtitle: Text("Condition: ${forecast.condition}"),
+                                trailing: Text("Max: ${forecast.maxTemp}°C\nMin: ${forecast.minTemp}°C"),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+      ),
+    );
   }
 }
